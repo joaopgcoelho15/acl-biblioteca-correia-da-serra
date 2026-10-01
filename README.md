@@ -2,7 +2,7 @@
 
 Repository prepared for the public consultation application developed for the Biblioteca Correia da Serra at the Academia das Ciências de Lisboa.
 
-This repository is private pending review. The source was deposited on 1 October 2026 from the local working copy, whose latest application changes are dated 4 August 2026. This is a source snapshot, not a verified copy of the current server deployment. Working spreadsheets, credentials and backups are excluded.
+The source was deposited on 1 October 2026 from the local working copy, whose latest application changes are dated 4 August 2026. This is a source snapshot, not a verified copy of the current server deployment. Working spreadsheets, credentials and backups are excluded.
 
 ## Contents
 
@@ -17,4 +17,4 @@ The spreadsheet supplies the catalog data. A clone alone does not provide a work
 
 ## Related material
 
-Analysis and dissertation supporting material are organized in [thesis-digital-information-management](https://github.com/joaopgcoelho15/thesis-digital-information-management), initially private.
+Analysis and dissertation supporting material, including a redacted bibliographic export, are organized in [thesis-digital-information-management](https://github.com/joaopgcoelho15/thesis-digital-information-management).
