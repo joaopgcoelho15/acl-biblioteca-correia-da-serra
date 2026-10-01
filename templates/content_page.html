@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="catalog-hero content-hero">
+    <div class="hero-inner">
+        <h1>{{ page_title }}</h1>
+    </div>
+</section>
+
+<main class="content-page content-page-{{ page.endpoint }}">
+    {% if page.layout == "publications" %}
+        <section class="publications-layout">
+            {% for item in page.publications %}
+                <article class="publication-card">
+                    <img src="{{ url_for('static', filename=item.image) }}" alt="">
+                    <div>
+                        <p>{{ item["kind_" ~ current_lang] }}</p>
+                        <h2>{{ item.title }}</h2>
+                        <h3>{{ item.authors }}</h3>
+                        <strong>{{ item.year }}</strong>
+                    </div>
+                </article>
+            {% endfor %}
+        </section>
+    {% else %}
+        <section class="content-layout {{ page.layout }}">
+            <figure>
+                <img src="{{ url_for('static', filename=page.image) }}" alt="">
+            </figure>
+            <article class="content-copy">
+                {% if sections %}
+                    {% for section in sections %}
+                        <section class="content-section">
+                            {% if section.get("heading_" ~ current_lang) %}
+                                <h2>{{ section["heading_" ~ current_lang] }}</h2>
+                            {% endif %}
+                            {% for paragraph in section.get("paragraphs_" ~ current_lang, []) %}
+                                {% if paragraph is mapping and paragraph.get("link_endpoint") %}
+                                    <p>{{ paragraph.before }}<a href="{{ url_for(paragraph.link_endpoint) }}" target="_blank">{{ paragraph.link_text }}</a>{{ paragraph.after }}</p>
+                                {% else %}
+                                    <p>{{ paragraph }}</p>
+                                {% endif %}
+                            {% endfor %}
+                            {% set localized_items = section.get("items_" ~ current_lang, []) %}
+                            {% set items = localized_items or section.get("items", []) %}
+                            {% if items %}
+                                <ul class="content-list{% if section.get('plain_items') %} plain{% endif %}">
+                                    {% for item in items %}
+                                        <li>
+                                            {% if item is mapping and item.url %}
+                                                <a href="{{ item.url }}" target="_blank" rel="noreferrer">{{ item.text }}</a>
+                                            {% elif item is mapping %}
+                                                {{ item.text }}
+                                            {% else %}
+                                                {{ item }}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if section.get("image") %}
+                                <img class="support-logo" src="{{ url_for('static', filename=section.image) }}" alt="{{ section.get('image_alt_' ~ current_lang, '') }}">
+                            {% endif %}
+                        </section>
+                    {% endfor %}
+                {% else %}
+                    <h2>{{ section_title }}</h2>
+                    {% for paragraph in paragraphs %}
+                        <p>{{ paragraph }}</p>
+                    {% endfor %}
+                {% endif %}
+            </article>
+        </section>
+    {% endif %}
+</main>
+{% endblock %}

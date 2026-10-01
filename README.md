@@ -2,16 +2,18 @@
 
 Repository prepared for the public consultation application developed for the Biblioteca Correia da Serra at the Academia das Ciências de Lisboa.
 
-This repository is initially private. The first commit contains its organization and publication checklist, not the application code. The source must be located and reviewed before it is imported. No server credentials, working spreadsheet or backups are included.
+This repository is private pending review. The source was deposited on 1 October 2026 from the local working copy, whose latest application changes are dated 4 August 2026. This is a source snapshot, not a verified copy of the current server deployment. Working spreadsheets, credentials and backups are excluded.
 
-## Planned contents
+## Contents
 
-- `src/`: application source, without installation-specific credentials.
-- `docs/`: installation instructions, data model and deployment notes.
-- `data/examples/`: a small reviewed example dataset, rather than the working catalog spreadsheet.
-- `tests/`: application and data-import tests, where available.
+- `server/app.py`: Flask application, search, filters, record views and Portuguese/English pages.
+- `templates/`: Jinja templates.
+- `website/`: styling and selected assets used by the fixed pages, without the complete manuscript image collection or book covers.
+- `scripts/`: tools for importing and updating book-cover images.
+- `Dockerfile`, `compose.yaml`, `requirements.txt`: runtime setup.
+- [Installation and data](docs/installation.md): required spreadsheet, assets and update procedure.
 
-The spreadsheet supplies the catalog data. Application code and catalog data should be documented separately, including how a new validated export updates the application.
+The spreadsheet supplies the catalog data. A clone alone does not provide a working catalog until a validated `database.xlsx` is supplied. The manuscript PDF and full image collection must also be supplied separately for their views and download links.
 
 ## Related material
 

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="home-page">
+    <section class="home-search" aria-label="Pesquisa">
+        <form class="search-bar" action="{{ url_for('catalog') }}" method="get">
+            <input type="hidden" name="lang" value="{{ current_lang }}">
+            <input type="search" name="q" placeholder="{{ t['search_placeholder'] }}" aria-label="{{ t['search_placeholder'] }}">
+            <button type="submit">{{ t['catalog'] }}</button>
+        </form>
+        <a class="advanced-link" href="{{ site_url('catalog') }}">{{ t['advanced_search'] }}</a>
+    </section>
+
+    <section class="browse-section">
+        <h1>{{ t['browse_by'] }}</h1>
+        <div class="browse-grid">
+            <a class="browse-tile" href="{{ site_url('catalog') }}">
+                <img src="{{ url_for('static', filename='static/0001_1_1_p003_1.jpg') }}" alt="">
+                <span>Temas</span>
+            </a>
+            <a class="browse-tile" href="{{ site_url('catalog') }}">
+                <img src="{{ url_for('static', filename='static/0013_1_1_p006_2.jpg') }}" alt="">
+                <span>Autores</span>
+            </a>
+            <a class="browse-tile" href="{{ site_url('catalog') }}">
+                <img src="{{ url_for('static', filename='static/0031_1_1_p013_3.jpg') }}" alt="">
+                <span>Locais</span>
+            </a>
+            <a class="browse-tile" href="{{ site_url('catalog') }}">
+                <img src="{{ url_for('static', filename='static/0082_1_1_p026_3.jpg') }}" alt="">
+                <span>Datas</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="library-intro">
+        {% for paragraph in t['library_intro_body'] %}
+            <p>{{ paragraph }}</p>
+        {% endfor %}
+    </section>
+
+    <section class="home-info-grid">
+        <article>
+            <h2>{{ t['publications'] }}</h2>
+            <p>Sele&ccedil;&atilde;o editorial e materiais associados ao cat&aacute;logo.</p>
+        </article>
+        <article>
+            <h2>{{ t['contacts'] }}</h2>
+            <p>Academia das Ciencias de Lisboa.</p>
+        </article>
+    </section>
+</main>
+{% endblock %}

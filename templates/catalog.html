@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="catalog-hero">
+    <div class="hero-inner">
+        <h1>{{ t['catalog'] }}</h1>
+    </div>
+</section>
+
+<main class="catalog-shell">
+    <aside class="filters-panel">
+        <h2>{{ t['filters'] }}</h2>
+        <form class="filter-form" method="get" action="{{ url_for('catalog') }}">
+            <input type="hidden" name="lang" value="{{ current_lang }}">
+            <input type="hidden" name="sort" value="{{ selected_sort }}">
+            {% for filter in filters %}
+                <label for="{{ filter.param }}">{{ t[filter.label_key] }}</label>
+                <select id="{{ filter.param }}" name="{{ filter.param }}" class="{% if selected.get(filter.param) %}has-value{% if selected.get(filter.param) == '_sem_valor' %} has-missing-value{% endif %}{% else %}is-default{% endif %}" onchange="this.form.submit()">
+                    <option class="filter-placeholder" value="">{{ t['all'] }}</option>
+                    {% for option in options[filter.param] %}
+                        <option value="{{ option.value }}" class="{% if option.value == '_sem_valor' %}filter-missing{% endif %}" {% if selected.get(filter.param) == option.value %}selected{% endif %}>
+                            {{ option.label }} ({{ option.count }})
+                        </option>
+                    {% endfor %}
+                </select>
+            {% endfor %}
+            <label for="q">{{ t['free_search'] }}</label>
+            <input id="q" type="search" name="q" class="{% if query %}has-value{% endif %}" value="{{ query }}" placeholder="{{ t['search_placeholder'] }}">
+            <div class="filter-actions">
+                <button type="submit">{{ t['apply'] }}</button>
+                <a href="{{ clear_url }}">{{ t['clear'] }}</a>
+            </div>
+        </form>
+    </aside>
+
+    <section class="results-panel">
+        <div class="results-bar">
+            <form class="sort-form" method="get" action="{{ url_for('catalog') }}">
+                <input type="hidden" name="lang" value="{{ current_lang }}">
+                {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+                {% for key, value in selected.items() %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endfor %}
+                <label for="sort">{{ t['sort_by'] }}</label>
+                <select id="sort" name="sort" onchange="this.form.submit()">
+                    {% for option in sort_options %}
+                        <option value="{{ option.value }}" {% if selected_sort == option.value %}selected{% endif %}>
+                            {{ option["label_" ~ current_lang] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+            <strong>({{ total }} {{ t['results'] }})</strong>
+        </div>
+
+        <div class="records-list">
+            {% for record in records %}
+                <article class="record-card" data-record-id="{{ record.id }}">
+                    <div class="record-image-panel">
+                        <a class="record-work-link" href="{{ site_url('detail', record_id=record.id) }}">
+                            {% if record.work_image_url %}
+                                <img src="{{ record.work_image_url }}" alt="{{ t['work_image'] }}">
+                            {% else %}
+                                <span class="work-image-placeholder" role="img" aria-label="{{ t['no_image'] }}"><em>{{ t['no_image'] }}</em></span>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="record-copy">
+                        <div class="metadata-view">
+                            <h2>
+                                {% if known_value(record.author, author=True) %}
+                                    <a href="{{ catalog_filter_url('author', record.author) }}">{{ display_value(record.author, author=True) }}</a>
+                                {% else %}
+                                    {{ display_value(record.author, author=True) }}
+                                {% endif %}
+                            </h2>
+                            <h3><a href="{{ site_url('detail', record_id=record.id) }}">{{ record.titulo or record["Bibliographic Description"] }}</a></h3>
+                            <div class="metadata-body">
+                                {% set record_local = record["local(atual)"] or record.local %}
+                                <dl>
+                                    <div><dt>{{ t['place'] }}</dt><dd>{% if known_value(record_local) %}<a href="{{ catalog_filter_url('local_atual', record_local) }}">{{ display_value(record_local) }}</a>{% else %}{{ display_value(record_local) }}{% endif %}</dd></div>
+                                    <div><dt>{{ t['printer'] }}</dt><dd>{% if known_value(record.editor) %}<a href="{{ catalog_filter_url('editor', record.editor) }}">{{ display_value(record.editor) }}</a>{% else %}{{ display_value(record.editor) }}{% endif %}</dd></div>
+                                    <div><dt>{{ t['date'] }}</dt><dd>{% if known_value(record.date) %}<a href="{{ catalog_filter_url('date', record.date) }}">{{ display_value(record.date) }}</a>{% else %}{{ display_value(record.date) }}{% endif %}</dd></div>
+                                    <div><dt>{{ t['language'] }}</dt><dd>{% if known_value(record.lingua) %}<a href="{{ catalog_filter_url('lingua', record.lingua) }}">{{ display_value(record.lingua) }}</a>{% else %}{{ display_value(record.lingua) }}{% endif %}</dd></div>
+                                    <div><dt>{{ t['topics'] }}</dt><dd>{% if known_value(record.classification) %}<a href="{{ catalog_filter_url('classification', record.classification) }}">{{ display_value(record.classification) }}</a>{% else %}{{ display_value(record.classification) }}{% endif %}</dd></div>
+                                </dl>
+                                <figure class="record-catalog-preview" tabindex="0">
+                                    <img src="{{ record.image_url }}" alt="{{ t['catalog_record_alt'].format(catalog_number=record.catalog_number or record.registo) }}">
+                                    <span class="record-catalog-popout" aria-hidden="true">
+                                        <img src="{{ record.image_url }}" alt="">
+                                    </span>
+                                </figure>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            {% else %}
+                <p class="empty-state">{{ t['no_records'] }}</p>
+            {% endfor %}
+        </div>
+
+        <nav class="pagination" aria-label="{{ t['pagination'] }}">
+            {% if prev_url %}
+                <a href="{{ prev_url }}">{{ t['previous'] }}</a>
+            {% else %}
+                <span>{{ t['previous'] }}</span>
+            {% endif %}
+            <strong>{{ t['page_of'].format(page=page, total_pages=total_pages) }}</strong>
+            {% if next_url %}
+                <a href="{{ next_url }}">{{ t['next'] }}</a>
+            {% else %}
+                <span>{{ t['next'] }}</span>
+            {% endif %}
+        </nav>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,7 @@
+services:
+  biblioteca:
+    build: .
+    environment:
+      URL_PREFIX: ""
+    ports:
+      - "127.0.0.1:5057:8000"

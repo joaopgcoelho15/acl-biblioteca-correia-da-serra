@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="{{ current_lang }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }} - Biblioteca Digital de Jos&eacute; Correia da Serra</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">
+            <a class="brand-mark-link" href="https://www.acad-ciencias.pt/" aria-label="Academia das Ci&ecirc;ncias de Lisboa">
+                <img class="brand-mark" src="{{ url_for('static', filename='static/acl-logo.png') }}" alt="">
+            </a>
+            <a class="brand-title" href="{{ site_url('home') }}">
+                Biblioteca Digital de<br>Jos&eacute; Correia da Serra
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="{{ site_url('catalog') }}">{{ t['catalog'] }}</a>
+            <a href="{{ site_url('about') }}">{{ t['about'] }}</a>
+            <a href="{{ site_url('research') }}">{{ t['research'] }}</a>
+            <a href="{{ site_url('publications') }}">{{ t['publications'] }}</a>
+            <a href="{{ site_url('contacts') }}">{{ t['contacts'] }}</a>
+            <a class="language-switch" href="{{ switch_language_url() }}">{{ t['language_switch'] }}</a>
+        </nav>
+    </header>
+
+    {% block content %}{% endblock %}
+</body>
+</html>
