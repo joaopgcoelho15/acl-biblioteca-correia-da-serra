@@ -2,8 +2,6 @@
 
 Repository prepared for the public consultation application developed for the Biblioteca Correia da Serra at the Academia das Ciências de Lisboa.
 
-The source was deposited on 1 October 2026 from the local working copy, whose latest application changes are dated 4 August 2026. This is a source snapshot, not a verified copy of the current server deployment. Working spreadsheets, credentials and backups are excluded.
-
 ## Contents
 
 - `server/app.py`: Flask application, search, filters, record views and Portuguese/English pages.
