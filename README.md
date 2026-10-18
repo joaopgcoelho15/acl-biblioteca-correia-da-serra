@@ -23,8 +23,8 @@ HTML/Jinja, CSS e JavaScript, sem uma base de dados SQL.
 Requer Python 3.11 ou 3.12. A imagem Docker utiliza Python 3.11.
 
 ```bash
-git clone https://github.com/joaopgcoelho15/biblioteca-correia-da-serra.git
-cd biblioteca-correia-da-serra
+git clone https://github.com/joaopgcoelho15/acl-biblioteca-correia-da-serra.git
+cd acl-biblioteca-correia-da-serra
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -119,5 +119,10 @@ de um ficheiro neste repositório público não constitui uma licença de reutil
 de todos os conteúdos nem aplica a licença do dataset ao código ou às imagens.
 
 Credenciais, ambientes locais, relatórios temporários e backups históricos não
-são incluídos no repositório. A branch `backup-inicial` identifica a primeira
-versão publicada e, como o repositório, é pública.
+são incluídos no repositório. A branch `backup-inicial` identifica a versão
+completa de 18 de outubro de 2026 e, como o repositório, é pública.
+O histórico do depósito original foi preservado.
+
+As instruções complementares estão em [docs/installation.md](docs/installation.md).
+O ficheiro [docs/deposit-sha256.txt](docs/deposit-sha256.txt) é um manifesto
+histórico do depósito inicial, não uma verificação dos ficheiros atuais.
