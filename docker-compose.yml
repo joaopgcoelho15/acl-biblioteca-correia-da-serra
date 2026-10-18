@@ -1,0 +1,9 @@
+services:
+  aclisboa-novo:
+    build: .
+    container_name: aclisboa-novo
+    restart: unless-stopped
+    environment:
+      URL_PREFIX: /acl-novo
+    ports:
+      - "5057:8000"

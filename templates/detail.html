@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="detail-page">
+    <a class="back-link" href="{{ site_url('catalog') }}">{{ t['back_to_catalog'] }}</a>
+
+    <section class="detail-header">
+        <h1>{{ record.titulo or record["Bibliographic Description"] }}</h1>
+    </section>
+
+    <section class="detail-layout">
+        <aside class="detail-image">
+            <div class="detail-work-image">
+                {% if record.work_image_url %}
+                    <img src="{{ record.work_image_url }}" alt="{{ t['work_image'] }}">
+                {% else %}
+                    <div class="work-image-placeholder" role="img" aria-label="{{ t['no_image'] }}"><em>{{ t['no_image'] }}</em></div>
+                {% endif %}
+                <p class="image-source">
+                    {% if record.work_image_source_url %}
+                        {{ t['image_source_prefix'] }} <a href="{{ record.work_image_source_url }}" target="_blank" rel="noreferrer">{{ record.work_image_source_url }}</a>
+                    {% else %}
+                        <em>{{ t['image_source_missing'] }}</em>
+                    {% endif %}
+                </p>
+            </div>
+            <figure class="detail-catalog-image">
+                <figcaption>{{ t['original_catalog_image'] }}</figcaption>
+                <img src="{{ record.image_url }}" alt="{{ t['original_catalog_image'] }} {{ record.catalog_number or record.registo }}">
+            </figure>
+        </aside>
+
+        <article class="metadata-card">
+            <table>
+                <tbody>
+                    {% for field in fields %}
+                        <tr>
+                            <th>{{ field.label }}</th>
+                            <td>{% if field.href %}<a href="{{ field.href }}">{{ field.value | replace('\n', '<br>') | safe }}</a>{% else %}{{ field.value | replace('\n', '<br>') | safe }}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    {% if record.links %}
+                        <tr>
+                            <th>{{ t['access'] }}</th>
+                            <td>
+                                {% for link in record.links %}
+                                    <a href="{{ link }}" target="_blank" rel="noreferrer">{{ link }}</a><br>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </article>
+    </section>
+</main>
+{% endblock %}

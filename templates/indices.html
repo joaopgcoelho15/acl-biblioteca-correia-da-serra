@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="indices-page">
+    <section class="page-title">
+        <p>Cat&aacute;logo</p>
+        <h1>Indices</h1>
+    </section>
+
+    <div class="indices-grid">
+        {% for group in groups %}
+            <section class="index-group">
+                <h2>{{ group.label }}</h2>
+                <ul>
+                    {% for item in group["items"] %}
+                        <li>
+                            <a href="{{ item.href }}">{{ item.label }}</a>
+                            <span>{{ item.count }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,37 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Python and local environments
+.venv/
+venv/
+.deps/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Operating system and Office temporary files
+.DS_Store
+._*
+~$*
+*.log
+
+# Historical copies, source documents and duplicate import assets
+backups/
+Thumbnails/
+*.docx
+/logotipo_flad.png
+
+# Generated image-download diagnostics (keep manifest.json)
+website/static/obras/relatorio.json
+website/static/obras/ultima_tentativa.json
+website/static/obras/validacao_*.json
+website/static/obras/validacao_*.csv

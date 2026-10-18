@@ -1,0 +1,12 @@
+.DS_Store
+.venv
+.deps
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.git
+.gitignore
+~$*.xlsx
+backups/
