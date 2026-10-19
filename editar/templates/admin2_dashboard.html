@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #notifications div {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #notifications div:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin2 Dashboard</h1>
+    <div id="notifications"></div>
+
+    <script>
+        async function loadNotifications() {
+            const response = await fetch('/admin2-notifications');
+            const notifications = await response.json();
+            const notificationsDiv = document.getElementById('notifications');
+            notificationsDiv.innerHTML = '';
+            const uniqueNotifications = Array.from(new Set(notifications.map(n => n.image_id)))
+                                              .map(image_id => notifications.find(n => n.image_id === image_id));
+            uniqueNotifications.forEach(notification => {
+                const notificationDiv = document.createElement('div');
+                notificationDiv.textContent = `Nova mensagem para o registo ${notification.image_id}`;
+                notificationDiv.onclick = () => {
+                    markAsViewed(notification.image_id).then(() => {
+                        window.location.href = `/image-details/${notification.image_id}`;
+                    });
+                };
+                notificationsDiv.appendChild(notificationDiv);
+            });
+        }
+
+        async function markAsViewed(imageId) {
+            await fetch(`/admin2-mark-as-viewed/${imageId}`, { method: 'POST' });
+        }
+
+        loadNotifications();
+        setInterval(loadNotifications, 5000);
+    </script>
+</body>
+</html>

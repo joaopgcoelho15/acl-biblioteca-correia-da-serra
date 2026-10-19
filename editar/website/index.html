@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Image Forum</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="style.css">  <!-- Link to the external style sheet -->
+    <style>
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .pagination button {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button id="admin-button">Admin</button>
+        <button id="indices-button">Índices</button>
+    </div>
+    
+    <div class="pagination">
+        <button id="prev-button">Página anterior</button>
+        <button id="next-button">Página seguinte</button>
+    </div>
+    
+    <!-- Div to display the gallery -->
+    <div id="image-gallery"></div>
+    
+    <div class="pagination">
+        <button id="prev-button-bottom">Página anterior</button>
+        <button id="next-button-bottom">Página seguinte</button>
+    </div>
+
+    <!-- Include script.js -->
+    <script src="script.js"></script>
+
+    <!-- Redirect to admin login -->
+    <script>
+        document.getElementById('admin-button').addEventListener('click', function() {
+            window.location.href = '/login';
+        });
+
+        document.getElementById('indices-button').addEventListener('click', function() {
+            window.location.href = '/indices';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Detalhes do Registo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .container {
+            position: relative;
+            padding: 10px;
+        }
+        
+        /* Container for the "Voltar" button, positioned at the top left */
+        .back-button-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        
+        /* Container for the other buttons, positioned at the top right */
+        .button-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* General styling for buttons */
+        .button-container button,
+        .back-button-container button {
+            padding: 6px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #f2f2f2;
+        }
+        
+        .title {
+            text-align: center;
+            padding: 5px 0;
+            margin: 0;
+        }
+        
+        .image-info {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+            padding-bottom: 10px;
+            margin-top: 60px; /* Added margin to account for button space */
+        }
+        
+        .image-container {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .info-container {
+            flex: 1;
+            padding-left: 20px;
+            text-align: left;
+        }
+        
+        .chat-container {
+            width: 100%;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .input-row input {
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .input-row textarea {
+            flex: 4;
+            resize: none;
+            height: 120px;
+        }
+        
+        #chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow-y: scroll;
+            margin-top: 10px;
+        }
+        
+        #chat-box div {
+            margin-bottom: 10px;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        table, th, td {
+            border: 1px solid black;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            min-width: 150px; /* Adjust this value to your preference */
+            word-wrap: break-word; /* Ensure text wraps instead of overflowing */
+            text-align: left; /* Keep text aligned to the left */
+        }
+        
+        td[contenteditable="true"] {
+            background-color: #e6f7ff;
+        }
+        
+        .edit-mode {
+            background-color: #e6f7ff !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Container for other buttons positioned to the top-right -->
+        <div class="button-container">
+           <button id="back-button">Voltar</button>
+
+            <script>
+            // Redirect to the home page with filters
+            document.getElementById('back-button').addEventListener('click', function (event) {
+                if (hasUnsavedChanges) {
+                    // Prompt the user with a confirmation dialog
+                    const confirmLeave = window.confirm("Há alterações não guardadas. Tem a certeza que quer voltar sem guardar?");
+                    if (!confirmLeave) {
+                        event.preventDefault(); // Stop navigation
+                    } else {
+                        hasUnsavedChanges = false; // Reset unsaved changes
+                        navigateBack(); // Perform navigation
+                    }
+                } else {
+                    navigateBack(); // No unsaved changes, perform navigation
+                }
+            });
+
+            // Function to handle navigation back
+            function navigateBack() {
+                const filters = JSON.parse(sessionStorage.getItem('filters')) || {};
+                const queryString = new URLSearchParams(filters).toString();
+                window.location.href = `/acl/?${queryString}`;
+            }
+
+
+            </script>
+            <button id="edit-button" onclick="promptPassword()">Editar Informação</button>
+            <button id="save-button" onclick="saveChanges({{ image['id'] }})" style="display:none;">Guardar Alterações</button>
+            <button id="cancel-button" onclick="cancelChanges()" style="display:none;">Cancelar</button>
+        </div>
+
+        <h1 class="title">Registo número {{ image['id'] }} na base de dados ({{ image['path_number'] }} no catálogo)</h1>
+
+        <div class="image-info">
+            <!-- Image container that will now include the image and chat -->
+            <div class="image-container">
+                <img src="../{{ image['path'] }}" alt="Image" style="max-width: 100%; max-height: 300px;">
+                
+                <!-- Chat is now part of the image-container -->
+                <div class="chat-container">
+                    <h2>Observações</h2>
+                    <!-- Inputs side by side with adjusted sizes -->
+                    <div class="input-row">
+                        <input type="text" id="chat-name" placeholder="Nome (opcional)" readonly>
+                        <textarea id="chat-message" placeholder="Mensagem" readonly></textarea>
+                    </div>    
+                    <div id="chat-box" style="text-align: left;"> <!-- Align content to the left -->
+                        {% for message in image.messages %}
+                            <div>
+                                <em>{{ message.timestamp }}</em> <strong>{{ message.name }}</strong>: {{ message.message }}
+                            </div>
+                        {% endfor %}
+                    </div>                                   
+                </div>
+            </div>
+
+            <!-- Information container stays on the right side -->
+            <div class="info-container">
+                <table>
+                    <tr>
+                        <th>Registo</th>
+                        <td id="info">{{ image['info'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Titulo</th>
+                        <td id="titulo">{{ image['titulo'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Autor</th>
+                        <td id="author" contenteditable="false">
+                            {{ image['author'].replace('\n', '<br>')|safe }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Editor</th>
+                        <td id="editor_name" contenteditable="false">
+                            {{ image['editor_name'].replace('\n', '<br>')|safe if image['editor_name'] else '' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Tradutor</th>
+                        <td id="tradutor" contenteditable="false">
+                            {{ image['tradutor'].replace('\n', '<br>')|safe if image['tradutor'] else '' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Impressor</th>
+                        <td id="editor" contenteditable="false">
+                            {{ image['editor'].replace('\n', '<br>')|safe }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Local (no original)</th>
+                        <td id="local">{{ image['local'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Local (nome atual)</th>
+                        <td id="local-atual">{{ image['local(atual)'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Data</th>
+                        <td id="date">{{ image['date'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Tomos</th>
+                        <td id="tomos">{{ image['tomos'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Língua</th>
+                        <td id="lingua">{{ image['lingua'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Categoria</th>
+                        <td>
+                            <select id="classification" style="display: none;">
+                                {% for classification in classifications %}
+                                    <option value="{{ classification }}"
+                                            {% if image['classification'] == classification %}
+                                                selected
+                                            {% endif %}>
+                                        {{ classification }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <span id="classification-text">{{ image['classification'] }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Prateleira</th>
+                        <td id="carreira">{{ image['carreira'] }}</td>
+                    </tr>                    
+                    <tr>
+                        <th>Links</th>
+                        <td id="links" contenteditable="false">
+                            {% for link in image['url'].splitlines() %}
+                                <a href="{{ link }}" target="_blank">{{ link }}</a><br>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Notas</th>
+                        <td id="notas">{{ image['notas'] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Estado</th>
+                        <td>
+                            <span id="estado-circle" style="height: 16px; width: 16px; border-radius: 70%; display: inline-block; margin-right: 5px;"></span>
+                            <select id="estado" style="display: none;">
+                                <option value="Dados brutos" {% if image['estado'] == "Dados brutos" %}selected{% endif %}>Dados brutos</option>
+                                <option value="Em edição" {% if image['estado'] == "Em edição" %}selected{% endif %}>Em edição</option>
+                                <option value="Confirmado" {% if image['estado'] == "Confirmado" %}selected{% endif %}>Confirmado</option>
+                            </select>
+                            <span id="estado-text">{{ image['estado'] }}</span>
+                        </td>
+                    </tr>                    
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        let originalValues = {};  // Object to store original values
+        let classificationChanged = false;  // Track if the classification dropdown was modified
+        let hasUnsavedChanges = false;  // Track unsaved changes
+
+        function promptPassword() {
+            const password = prompt('Introduza a palavra-passe para editar. Se necessitar de ajuda, por favor contacte: francisco26@live.com.pt');
+            if (password === null) {
+                return; // User cancelled the prompt
+            }
+
+            fetch('/acl/verify-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Palavra-passe incorreta');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    enableEditing();
+                } else {
+                    alert('Palavra-passe incorreta');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Palavra-passe incorreta');
+            });
+        }
+
+        function enableEditing() {
+            let editableIds = [
+                'info', 'registo', 'carreira', 'titulo', 
+                'author', 'editor_name', 'tradutor', 'editor', 'local', 'local-atual', 'date', 
+                'tomos', 'lingua', 'classification', 'links', 'notas', 'estado'
+            ];
+
+            // Set table cells to editable mode
+            editableIds.forEach(id => {
+                let element = document.getElementById(id);
+                if (element) {
+                    originalValues[id] = element.innerText.trim(); // Store initial value
+                    if (id === 'classification') {
+                        originalValues[id] = document.getElementById('classification-text').innerText.trim();
+                        document.getElementById('classification-text').style.display = 'none';
+                        document.getElementById('classification').style.display = 'inline';
+                        document.getElementById('classification').closest('td').classList.add('edit-mode');
+                        document.getElementById('classification').addEventListener('change', () => {
+                            classificationChanged = true;
+                            hasUnsavedChanges = true; // Track unsaved changes
+                        });
+                        sortDropdown(document.getElementById('classification'));
+                    } else if (id === 'estado') {
+                        originalValues[id] = document.getElementById('estado-text').innerText.trim();
+                        document.getElementById('estado-text').style.display = 'none';
+                        document.getElementById('estado').style.display = 'inline';
+                        document.getElementById('estado').closest('td').classList.add('edit-mode');
+                        document.getElementById('estado').addEventListener('change', () => {
+                            hasUnsavedChanges = true; // Track unsaved changes
+                        });
+                    } else {
+                        element.setAttribute('contenteditable', 'true');
+                        element.classList.add('edit-mode'); // Add styling for editing
+                        element.addEventListener('input', () => {
+                            hasUnsavedChanges = true; // Track unsaved changes
+                        });
+                    }
+                }
+            });
+
+            // Enable editing for 'Nome (opcional)' and 'Mensagem' fields
+            const chatNameInput = document.getElementById("chat-name");
+            const chatMessageInput = document.getElementById("chat-message");
+
+            originalValues['chat-name'] = chatNameInput.value;
+            originalValues['chat-message'] = chatMessageInput.value;
+
+            chatNameInput.removeAttribute("readonly");  // Make it writable
+            chatNameInput.classList.add("edit-mode");
+            chatNameInput.addEventListener('input', () => {
+                hasUnsavedChanges = true; // Track unsaved changes
+            });
+
+            chatMessageInput.removeAttribute("readonly");  // Make it writable
+            chatMessageInput.classList.add("edit-mode");
+            chatMessageInput.addEventListener('input', () => {
+                hasUnsavedChanges = true; // Track unsaved changes
+            });
+
+            // Show the appropriate buttons
+            document.getElementById('edit-button').style.display = 'none';
+            document.getElementById('save-button').style.display = 'inline';
+            document.getElementById('cancel-button').style.display = 'inline';
+
+            console.log(originalValues);
+        }
+
+        function cancelChanges() {
+            for (let id in originalValues) {
+                let element = document.getElementById(id);
+                if (element) {
+                    if (id === 'classification') {
+                        let originalText = originalValues[id];
+                        let dropdown = document.getElementById('classification');
+                        for (let i = 0; i < dropdown.options.length; i++) {
+                            if (dropdown.options[i].text.trim() === originalText) {
+                                dropdown.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        document.getElementById('classification-text').innerText = originalText;
+                        document.getElementById('classification-text').style.display = 'inline';
+                        document.getElementById('classification').style.display = 'none';
+                        document.getElementById('classification').closest('td').classList.remove('edit-mode');
+                    } else if (id === 'estado') {
+                        let originalText = originalValues[id];
+                        let dropdown = document.getElementById('estado');
+                        for (let i = 0; i < dropdown.options.length; i++) {
+                            if (dropdown.options[i].value === originalText) {
+                                dropdown.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        document.getElementById('estado-text').innerText = originalText;
+                        document.getElementById('estado-text').style.display = 'inline';
+                        document.getElementById('estado').style.display = 'none';
+                        document.getElementById('estado').closest('td').classList.remove('edit-mode');
+                    } else if (id === 'chat-name' || id === 'chat-message') {
+                        document.getElementById(id).value = originalValues[id];
+                        document.getElementById(id).setAttribute("readonly", "true");
+                        document.getElementById(id).classList.remove("edit-mode");
+                    } else {
+                        element.innerText = originalValues[id];
+                        element.removeAttribute('contenteditable');
+                        element.classList.remove('edit-mode');
+                    }
+                }
+            }
+
+            document.getElementById('edit-button').style.display = 'inline';
+            document.getElementById('save-button').style.display = 'none';
+            document.getElementById('cancel-button').style.display = 'none';
+
+            classificationChanged = false;
+            hasUnsavedChanges = false; // Reset unsaved changes flag
+        }
+
+
+        function saveChanges(imageId) {
+            const ids = [
+                "info", "classification", "estado", "author", "editor_name", "tradutor", "editor", "titulo",
+                "date", "local", "local-atual", "tomos", "links", "notas", "lingua",
+                "registo", "carreira", "chat-message", "chat-name"
+            ];
+
+            ids.forEach(id => {
+                if (!document.getElementById(id)) {
+                    console.error(`Element with ID '${id}' not found in the DOM.`);
+                }
+            });
+
+            const data = {
+                id: imageId,
+                info: document.getElementById("info")?.innerText.trim() || '',
+                classification: document.getElementById("classification")?.value || '',
+                estado: document.getElementById("estado")?.value.trim() || '',
+                author: document.getElementById("author")?.innerText.trim() || '',
+                editor_name: document.getElementById("editor_name")?.innerText.trim() || '',
+                tradutor: document.getElementById("tradutor")?.innerText.trim() || '',
+                editor: document.getElementById("editor")?.innerText.trim() || '',
+                titulo: document.getElementById("titulo")?.innerText.trim() || '',
+                date: document.getElementById("date")?.innerText.trim() || '',
+                local: document.getElementById("local")?.innerText.trim() || '',
+                local_atual: document.getElementById("local-atual")?.innerText.trim() || '',
+                tomos: document.getElementById("tomos")?.innerText.trim() || '',
+                url: document.getElementById("links")?.innerText.trim() || '',
+                notas: document.getElementById("notas")?.innerText.trim() || '',
+                lingua: document.getElementById("lingua")?.innerText.trim() || '',
+                registo: document.getElementById("registo")?.innerText.trim() || '',
+                carreira: document.getElementById("carreira")?.innerText.trim() || '',
+                chat_message: document.getElementById("chat-message")?.value.trim() || '',
+                chat_name: document.getElementById("chat-name")?.value || `User${Math.floor(Math.random() * 9000) + 1000}`
+            };
+
+            fetch('/acl/update-image-new-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to save changes");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Changes saved successfully:", data.message);
+                hasUnsavedChanges = false; // Reset unsaved changes flag
+                location.reload();
+            })
+            .catch(error => {
+                console.error("Error saving changes:", error);
+            });
+        }
+
+
+
+        // Function to alphabetically sort the dropdown options
+        function sortDropdown(dropdown) {
+            let options = Array.from(dropdown.options);
+            options.sort((a, b) => a.text.localeCompare(b.text));
+            dropdown.innerHTML = '';  // Clear existing options
+            options.forEach(option => {
+                dropdown.appendChild(option);
+            });
+        }
+
+        function submitChatMessage() {
+            let message = document.getElementById("chat-message").value;
+            let name = document.getElementById("chat-name").value || `User${Math.floor(Math.random() * 9000) + 1000}`;
+            let imageId = {{ image['id'] }};
+
+            if (message.trim() === "") {
+                console.warn("Empty message, not sending.");
+                return;  // Don't send an empty message
+            }
+
+            fetch(`/acl/chat/${imageId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: name, message: message })
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Failed to submit chat message");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Chat message submitted successfully:", data);
+            })
+            .catch((error) => {
+                console.error("Error submitting chat message:", error);
+            });
+        }
+
+        // Function to set the estado circle color based on the estado value
+        function setEstadoCircle(estado) {
+            let estadoCircle = document.getElementById('estado-circle');
+            let estadoText = estado.trim();
+            let estadoColor = '';
+
+            if (estadoText === 'Dados brutos') {
+                estadoColor = 'red';
+            } else if (estadoText === 'Em edição') {
+                estadoColor = 'yellow';
+            } else if (estadoText === 'Confirmado') {
+                estadoColor = 'green';
+            }
+
+            // Apply the background color to the circle
+            estadoCircle.style.backgroundColor = estadoColor;
+        }
+
+        // Initial setup when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            let estadoText = document.getElementById('estado-text').innerText;
+            setEstadoCircle(estadoText);
+        });
+
+        // Update the circle color dynamically when the estado dropdown changes
+        document.getElementById('estado').addEventListener('change', function() {
+            let selectedEstado = this.options[this.selectedIndex].text;
+            setEstadoCircle(selectedEstado);
+        });
+
+    </script>
+</body>
+</html>

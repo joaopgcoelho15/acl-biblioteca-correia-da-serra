@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transactions History</title>
+    <style>
+        table {
+            width: 100%;  /* Full width for the table */
+            border-collapse: collapse;  /* No gaps between cells */
+        }
+
+        th, td {
+            border: 1px solid #ddd;  /* Light border for table cells */
+            padding: 8px;  /* Padding for table cells */
+            text-align: center;  /* Center-align text */
+        }
+
+        img {
+            max-width: 50px;  /* Thumbnail size */
+            height: auto;  /* Maintain aspect ratio */
+        }
+
+        .dropdown {
+            cursor: pointer;  /* Indicate clickable */
+            color: blue;  /* Emphasize with color */
+            text-decoration: underline;  /* Add underline for emphasis */
+        }
+
+        .large-image {
+            display: none;  /* Initially hidden */
+            text-align: center;  /* Center-align large image */
+            padding: 10px;  /* Padding around the large image */
+        }
+
+    </style>
+
+    <script>
+    function toggleLargeImage(index) {
+        const largeImageRow = document.getElementById("large-image-" + index);
+        // Toggle display of the large image
+        largeImageRow.style.display = (largeImageRow.style.display === 'none' || largeImageRow.style.display === '') ? 'table-row' : 'none';
+    }
+    </script>
+</head>
+<body>
+    <h1>Transactions History</h1>
+    
+    <!-- Navigation buttons at the top -->
+    <div>
+        <button onclick="window.location.href='/admin/review'">Voltar</button>  <!-- Back to admin review -->
+    </div>
+
+    <!-- Transactions table with drop-down for large images -->
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Imagem</th>  <!-- Column for the drop-down -->
+            <th>Descrição</th>
+            <th>Decisão</th>
+            <th>Timestamp</th>  <!-- Display transaction timestamp -->
+        </tr>
+        
+        {% for index, transaction in enumerate(transactions) %}
+        <tr>
+            <td>{{ transaction['id'] }}</td>
+            <td>
+                <span class="dropdown" onclick="toggleLargeImage({{ index }})">Mostrar/Esconder</span>  <!-- Dropdown to toggle large image -->
+            </td>
+            <td>{{ transaction['description'] }}</td>
+            <td>{{ transaction['status'] }}</td>
+            <td>{{ transaction['timestamp'] }}</td>
+        </tr>
+
+        <!-- Large image row, hidden by default -->
+        <tr id="large-image-{{ index }}" class="large-image">  <!-- Unique ID based on index -->
+            <td colspan="5">  <!-- Span all columns -->
+                <img src="{{ url_for('static', filename=transaction['image_path']) }}" alt="Large Image" style="max-width: 400px;">  <!-- Display large image -->
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

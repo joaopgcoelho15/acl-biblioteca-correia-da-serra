@@ -4,6 +4,16 @@ Aplicação web para explorar o catálogo da Biblioteca de José Correia da Serr
 com o Excel como fonte de dados. Implementada em Python/Flask, pandas,
 HTML/Jinja, CSS e JavaScript, sem uma base de dados SQL.
 
+## Duas Aplicações
+
+- **Publicar:** a aplicação pública na raiz deste repositório.
+- **Editar:** a aplicação editorial em [`editar/`](editar/), com instruções
+  próprias e credenciais configuradas apenas no ambiente privado.
+
+As duas aplicações incluem o mesmo Excel de referência. Durante a utilização,
+as alterações editoriais não são automaticamente publicadas: é necessário
+validar e transferir o Excel atualizado para a aplicação pública.
+
 - [Site público](https://iris.sysresearch.org/acl-novo/)
 - [Dados no Zenodo](https://zenodo.org/records/19338055)
 
@@ -51,9 +61,19 @@ docker compose down
 
 ## Atualizar Dados E Imagens
 
-`database.xlsx` é a fonte do catálogo (folha `Sheet1`). A aplicação lê o Excel
+`database.xlsx` é a fonte do catálogo (primeira folha, atualmente `Sheet1`). A aplicação lê o Excel
 com pandas e constrói os filtros a partir dos seus campos. Deve manter-se a
 estrutura de colunas e os identificadores dos registos.
+
+A coluna Q chama-se `Impressor`. Por compatibilidade, as duas aplicações
+também aceitam os cabeçalhos antigos `editor` e `Editor`. O nome interno
+`editor` mantém-se na API e nas hiperligações; a app editorial grava o
+cabeçalho `Impressor` no Excel.
+
+A publicação não depende das outras folhas. A app editorial também tolera
+a sua ausência, mas pode recriar `Chat` quando se escreve um comentário.
+Para o Zenodo, pode usar-se uma cópia apenas com a primeira folha; guardar
+antes um backup das folhas editoriais, que podem conter comentários.
 
 `Url de obras.xlsx` associa o identificador da coluna A ao URL da imagem da
 coluna C. Para atualizar as imagens:
@@ -83,6 +103,7 @@ docker compose up -d --build
 ## Testes
 
 ```bash
+python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ```
 
@@ -105,6 +126,7 @@ database.xlsx                  Dados do catálogo
 Url de obras.xlsx              URLs das imagens
 Dockerfile                     Imagem de produção com Gunicorn
 docker-compose.yml             Execução do contentor
+editar/                        Aplicação editorial e respetivos recursos
 ```
 
 ## Dados E Créditos

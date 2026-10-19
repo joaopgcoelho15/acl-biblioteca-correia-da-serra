@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Página de Pesquisa</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+        .sidebar {
+            flex: 1;
+            max-width: 300px;
+            padding: 20px;
+            border-right: 1px solid #ccc;
+        }
+        .content {
+            flex: 3;
+            padding: 20px;
+        }
+        .filter-box {
+            margin-bottom: 20px;
+        }
+        .filter-box input, .filter-box select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        .image-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .image-item {
+            display: flex;
+            border: 1px solid black;
+            padding: 15px; /* Increase padding for more spacing */
+            margin-bottom: 1px; /* Add space between records */
+            align-items: flex-start; /* Align items to the top */
+            transition: box-shadow 0.3s;
+        }
+        .image-item img:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .image-item img {
+            max-width: 300px;
+            max-height: 300px;
+            margin-right: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .image-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Add space between lines within each record */
+        }
+        .image-info p {
+            margin: 2px 0; /* Add spacing between paragraphs */
+        }
+        .highlight {
+            font-weight: bold;
+            color: rgb(25, 0, 255);
+        }
+
+        /* Catalog View Styling */
+        #catalog-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            justify-content: center;
+        }
+
+        /* Adjust Header and Navigation */
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header button {
+            margin-top: 10px;
+            padding: 5px 15px;
+            font-size: 14px;
+        }
+
+        .catalog-container {
+            display: flex;
+            justify-content: center;  /* Center the two columns */
+            gap: 50px;  /* Set a wider gap between the two columns */
+            max-width: 1300px;  /* Set a max-width for centering */
+            margin: 150px auto 0;  /* Adjusted margin for better alignment */
+        }
+
+        #page-gallery-left,
+        #page-gallery-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
+            gap: 15px; /* Increase spacing between images */
+        }
+
+        #page-gallery-left img,
+        #page-gallery-right img {
+            width: 350px;  /* Set consistent and slightly larger width */
+            height: auto;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Style for the left and right button containers */
+        #left-navigation,
+        #right-navigation {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #left-navigation {
+            left: 50px; /* Position left button */
+        }
+
+        #right-navigation {
+            right: 50px; /* Position right button */
+        }
+
+        #prev-page-button,
+        #next-page-button {
+            font-size: 36px;  /* Increase button size */
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+        }
+        .download-btn {
+            padding: 5px 10px;
+        }
+
+        .registo-text {
+            font-size: 0.9em; /* Reduce the font size */
+            color: #555; /* Make it a lighter color to reduce visual weight */
+            margin-bottom: 10px; /* Add some spacing below */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar" id="filter-sidebar">
+            <h2>Filtros</h2>
+            <div class="filter-box">
+                <label for="estado-filter">Estado</label>
+                <select id="estado-filter" name="estado">
+                    <option value="" {% if not filters['estado'] %}selected{% endif %}>Estado</option>
+                    <option value="Dados brutos" {% if filters['estado'] == "Dados brutos" %}selected{% endif %}>Dados brutos</option>
+                    <option value="Em edição" {% if filters['estado'] == "Em edição" %}selected{% endif %}>Em edição</option>
+                    <option value="Confirmado" {% if filters['estado'] == "Confirmado" %}selected{% endif %}>Confirmado</option>
+                </select>
+                             
+            </div>            
+            <div class="filter-box">
+                <label for="classification-filter">Categoria</label>
+                <select id="classification-filter" name="classification">
+                    <option value="" {% if not filters['classification'] %}selected{% endif %}>Categoria</option>
+                    {% for classification in classifications %}
+                        <option value="{{ classification }}" {% if filters['classification'] == classification %}selected{% endif %}>
+                            {{ classification }} ({{ classification_counts[classification] }})
+                        </option>
+                    {% endfor %}
+                </select>                
+            </div>
+            <div class="filter-box">
+                <label for="language-filter">Língua</label>
+                <select id="language-filter" name="language">
+                    <option value="" {% if not filters['lingua'] %}selected{% endif %}>Linguagem</option>
+                    {% for language in language %}
+                        <option value="{{ language }}">{{ language }} ({{ language_counts[language] }})</option>
+                    {% endfor %}
+                    <option value="_sem valor">_sem valor ({{ language_counts["_sem valor"] }})</option>
+                </select>
+            </div>
+                    
+            <div class="filter-box">
+                <label for="author-filter">Autor</label>
+                <select id="author-filter" name="author">
+                    <option value="" {% if not filters['author'] %}selected{% endif %}>Autor</option>
+                    {% for author in authors %}
+                        <option value="{{ author }}">{{ author }} ({{ author_counts[author] }})</option>
+                    {% endfor %}
+                    <option value="_sem valor">_sem valor ({{ language_counts["_sem valor"] }})</option>
+                </select>
+            </div>
+            <div class="filter-box">
+                <label for="editor-filter">Impressor</label>
+                <select id="editor-filter" name="editor">
+                    <option value="" {% if not filters['editor'] %}selected{% endif %}>Impressor</option>
+                    {% for editor in editors %}
+                        <option value="{{ editor }}">{{ editor }} ({{ editor_counts[editor] }})</option>
+                    {% endfor %}
+                    <option value="_sem valor">_sem valor ({{ editor_counts["_sem valor"] }})</option>
+                </select>
+            </div>
+            
+            <div class="filter-box">
+                <label for="date-filter">Data</label>
+                <select id="date-filter" name="date">
+                    <option value="" {% if not filters['date'] %}selected{% endif %}>Data</option>
+                    {% for date in date %}
+                        <option value="{{ date }}">{{ date }} ({{ date_counts[date] }})</option>
+                    {% endfor %}
+                    <option value="_sem valor">_sem valor ({{ language_counts["_sem valor"] }})</option>
+                </select>
+            </div>            
+            <div class="filter-box">
+                <label for="local-filter">Local</label>
+                <select id="local-filter" name="local">
+                    <option value="" {% if not filters['local'] %}selected{% endif %}>Local</option>
+                    {% for local in locals %}
+                        <option value="{{ local }}">{{ local }} ({{ local_counts[local] }})</option>
+                    {% endfor %}
+                    <option value="_sem valor">_sem valor ({{ local_counts["_sem valor"] }})</option>
+                </select>
+            </div>
+            <div class="filter-box">
+                <label for="local_atual-filter">Local(nome normalizado)</label>
+                <select id="local_atual-filter" name="local_atual">
+                    <option value="" {% if not filters['local(atual)'] %}selected{% endif %}>Local</option>
+                    {% for local_atual in locals_atual %}
+                        <option value="{{ local_atual }}">{{ local_atual }} ({{ local_atual_counts[local_atual] }})</option>
+                    {% endfor %}
+                    <option value="_sem valor">_sem valor ({{ local_atual_counts["_sem valor"] }})</option>
+                </select>
+            </div>            
+            <div class="filter-box">
+                <label for="search-word">Pesquisa por palavras</label>
+                <input type="text" id="search-word" name="search_word" placeholder="Pesquisa por palavras">
+            </div>
+            <button id="search-button">Pesquisar</button>
+            <button id="clear-button">Limpar Filtros</button>
+        </div>
+        <div class="content">
+            <button id="toggle-view-button">Mudar para vista de catálogo</button>
+            <h1>Página de Pesquisa</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div id="total-results"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <a href="download-catalogo" class="download-btn">Download Catálogo</a>
+                    <a href="download-excel" class="download-btn">Download Excel</a>
+                </div>
+            </div>
+            <div id="results" class="image-gallery"></div>
+            <button id="prev-button" disabled>Previous</button>
+            <button id="next-button" disabled>Next</button>
+        </div>
+
+        <!-- Catalog View -->
+        <div id="catalog-view" style="display: none;">
+            <!-- Top Left Header -->
+            <div class="header">
+                <h1>Catalog Page</h1>
+                <button id="back-to-search-button">Voltar para modo de vista normal</button>
+            </div>
+
+            <div class="catalog-container">
+                <!-- Left Navigation Button -->
+                <div id="left-navigation">
+                    <button id="prev-page-button" disabled>&#9664;</button>
+                </div>
+
+                <!-- Container for two columns of catalog images -->
+                <div id="page-gallery-left"></div>
+                <div id="page-gallery-right"></div>
+
+                <!-- Right Navigation Button -->
+                <div id="right-navigation">
+                    <button id="next-page-button" disabled>&#9654;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let catalogPage = 1;  // This will keep track of the current catalog page
+        const perPage = 15;
+
+        // Ensure buttons and filters work
+        $(document).ready(function () {
+            fetchImages(currentPage);
+
+            $('#search-button').on('click', function () {
+                currentPage = 1;
+                fetchImages(currentPage);
+            });
+
+            $('#clear-button').on('click', function () {
+                sessionStorage.clear()
+                $('select, input').val('');  // Reset filters
+                window.location.href = "./";
+                currentPage = 1;
+                fetchImages(currentPage);
+            });
+
+            // Add event listeners to filter elements
+            $('select, input').on('change', function () {
+                currentPage = 1;
+                fetchImages(currentPage);
+            });
+
+            $('#prev-button').on('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchImages(currentPage);
+                }
+            });
+
+            $('#next-button').on('click', function () {
+                currentPage++;
+                fetchImages(currentPage);
+            });
+
+            // Event listener for toggling between search view and catalog view
+            $('#toggle-view-button').on('click', function () {
+                toggleView();
+            });
+
+            // Ensure the catalog pagination works
+            $('#prev-page-button').on('click', function () {
+                if (catalogPage > 1) {
+                    catalogPage--;
+                    displayCatalogPage(catalogPage);
+                }
+            });
+
+            $('#next-page-button').on('click', function () {
+                catalogPage++;
+                displayCatalogPage(catalogPage);
+            });
+
+            $('#back-to-search-button').on('click', function () {
+                // This will call the toggleView function to switch back to the search view
+                toggleView();
+            });
+            $('#prev-page-button').on('click', function () {
+                if (catalogPage > 1) {
+                    catalogPage--;
+                    displayCatalogPage(catalogPage);
+                }
+            });
+
+            $('#next-page-button').on('click', function () {
+                catalogPage++;
+                displayCatalogPage(catalogPage);
+            });
+        });
+
+        function fetchImages(page) {
+            let formData = {
+                page: page,
+                per_page: perPage,
+                classification: $('#classification-filter').val(),
+                exact_classification_match: true,  // Add this new parameter
+                language: $('#language-filter').val(),
+                author: $('#author-filter').val(),
+                editor: $('#editor-filter').val(),
+                local: $('#local-filter').val(),
+                local_atual: $('#local_atual-filter').val(),
+                date: $('#date-filter').val(),
+                estado: $('#estado-filter').val(),
+                search_word: $('#search-word').val()
+            };
+
+            $.ajax({
+                url: 'search',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    renderImages(response);
+                    updateFilterCounts(response.filter_counts, response.total_results);
+                },
+                error: function(error) {
+                    console.error("Error fetching images:", error);
+                }
+            });
+        }
+
+
+        function renderImages(response) {
+            let resultsDiv = $('#results');
+            resultsDiv.empty();
+
+            if (response.results.length > 0) {
+                response.results.forEach(item => {
+                    // Create the image element
+                    let img = $('<img>')
+                        .attr('src', item.path)
+                        .attr('alt', 'Image')
+                        .attr('data-id', item.id)
+                        .on('click', function () {
+                            window.location.href = 'image-details/' + $(this).attr('data-id');
+                        });
+
+                    // Determine the 'estado' color and tooltip message
+                    let estadoColor = '';
+                    let tooltipText = '';
+                    if (item.estado === 'Dados brutos') {
+                        estadoColor = 'red';
+                        tooltipText = 'Dados brutos';
+                    } else if (item.estado === 'Em edição') {
+                        estadoColor = 'yellow';
+                        tooltipText = 'Em edição';
+                    } else if (item.estado === 'Confirmado') {
+                        estadoColor = 'green';
+                        tooltipText = 'Confirmado';
+                    } else {
+                        estadoColor = 'grey'; // Default if 'estado' is missing or invalid
+                        tooltipText = 'Estado desconhecido';
+                    }
+
+                    // Create the circle element with the corresponding color and tooltip
+                    let estadoCircle = $('<span>')
+                        .addClass('estado-circle')
+                        .css({
+                            'background-color': estadoColor,
+                            'display': 'inline-block',
+                            'width': '20px',
+                            'height': '20px',
+                            'border-radius': '50%',
+                            'margin-right': '10px', // Add some space to the right of the circle
+                            'cursor': 'pointer'
+                        })
+                        .attr('title', tooltipText); // Add title attribute for hover tooltip
+
+                    // Create the "Registo" line 
+                    let registoText = $('<p>')
+                        .html(`${estadoCircle.prop('outerHTML')}Registo número ${item.id} na base de dados / número ${item.registo} no catálogo`)
+                        .addClass('registo-text');
+
+
+                    // Create the "Transcrição" line
+                    let transcriptionText = $('<p>')
+                        .html(`<strong>Transcrição:</strong> ${item['Bibliographic Description'] || 'N/A'}`);
+
+                    // Create the "Categoria" line
+                    let categoryText = $('<p>')
+                        .html(`<strong>Categoria:</strong> ${item['classification'] || 'N/A'}`);
+
+                    // Create the info div
+                    let infoDiv = $('<div>')
+                        .addClass('image-info')
+                        .append(registoText, transcriptionText, categoryText);
+
+                    // Create the complete image item
+                    let div = $('<div>')
+                        .addClass('image-item')
+                        .append(img, infoDiv);
+
+                    resultsDiv.append(div);
+                });
+
+                $('#total-results').text(`Resultados Totais: ${response.total_results}`);
+                $('#prev-button').prop('disabled', currentPage <= 1);
+                $('#next-button').prop('disabled', currentPage * perPage >= response.total_results);
+            } else {
+                resultsDiv.append('<div>No results found</div>');
+                $('#total-results').text('Total Results: 0');
+                $('#prev-button').prop('disabled', true);
+                $('#next-button').prop('disabled', true);
+            }
+        }
+
+
+        // Function to toggle between the catalog view and the search view
+        function toggleView() {
+            const searchView = $('.content');  // Search view container
+            const catalogView = $('#catalog-view');  // Catalog view container
+            const toggleButton = $('#toggle-view-button');
+            const sidebar = $('#filter-sidebar');  // Select the sidebar by ID
+
+            if (catalogView.is(':visible')) {
+                // Show search view and filters
+                catalogView.hide();
+                sidebar.show();  // Ensure filters are visible in the normal view
+                searchView.show();
+                toggleButton.text('Mudar para vista de catálogo');
+            } else {
+                // Show catalog view, hide sidebar filters
+                searchView.hide();
+                sidebar.hide();  // Hide the sidebar when switching to Catalog View
+                catalogView.show();
+                toggleButton.text('Switch to Search View');
+                displayCatalogPage(catalogPage);
+            }
+        }
+
+        function displayCatalogPage(pageNumber) {
+            let formData = {
+                page: pageNumber,
+                per_page: 15  // Adjust per page count as needed
+            };
+
+            $.ajax({
+                url: 'catalog-search',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    // Render the images in the left and right containers
+                    renderCatalogImages(response, pageNumber);
+                },
+                error: function(error) {
+                    console.error("Error fetching catalog images:", error);
+                }
+            });
+        }
+
+        // Function to render catalog images in two columns
+        function renderCatalogImages(response, pageNumber) {
+            let galleryLeft = $('#page-gallery-left');
+            let galleryRight = $('#page-gallery-right');
+            galleryLeft.empty();
+            galleryRight.empty();
+
+            // Render images for the left page
+            if (response.results_left.length > 0) {
+                response.results_left.forEach(item => {
+                    let img = $('<img>')
+                        .attr('src', item.path)
+                        .attr('alt', 'Image')
+                        .on('click', function() {
+                            window.location.href = 'image-details/' + item.id;
+                        });
+                    galleryLeft.append(img);
+                });
+            } else {
+                galleryLeft.append('<div>No images available for this page</div>');
+            }
+
+            // Render images for the right page
+            if (response.results_right.length > 0) {
+                response.results_right.forEach(item => {
+                    let img = $('<img>')
+                        .attr('src', item.path)
+                        .attr('alt', 'Image')
+                        .on('click', function() {
+                            window.location.href = 'image-details/' + item.id;
+                        });
+                    galleryRight.append(img);
+                });
+            } else {
+                galleryRight.append('<div>No images available for this page</div>');
+            }
+
+            // Update page number and navigation buttons
+            $('#current-page-display').text(`Page ${pageNumber}`);
+            $('#prev-page-button').prop('disabled', pageNumber <= 1);
+            $('#next-page-button').prop('disabled', response.results_left.length === 0 && response.results_right.length === 0);
+        }
+
+        function updateFilterCounts(filterCounts, totalResults) {
+            // Update estado filter counts
+            $('#estado-filter option').each(function() {
+                let value = $(this).val();
+                if (value) {
+                    let count = filterCounts.estado_counts[value] || 0;
+                    $(this).text(`${value} (${count}/${totalResults})`);
+                }
+            });
+            // Update classification filter counts
+            $('#classification-filter option').each(function() {
+                let value = $(this).val();
+                if (value) {
+                    let count = filterCounts.classification_counts[value] || 0;
+                    $(this).text(`${value} (${count}/${totalResults})`);
+                }
+            });
+
+            // Update language filter counts
+            $('#language-filter option').each(function() {
+                let value = $(this).val();
+                if (value) {
+                    let count = filterCounts.language_counts[value] || 0;
+                    $(this).text(`${value} (${count}/${totalResults})`);
+                }
+            });
+
+            // Update author filter counts
+            $('#author-filter option').each(function() {
+                let value = $(this).val();
+                if (value) {
+                    let count = filterCounts.author_counts[value] || 0;
+                    $(this).text(`${value} (${count}/${totalResults})`);
+                }
+            });
+
+            // Update editor filter counts
+            $('#editor-filter option').each(function() {
+                let value = $(this).val();
+                if (value) {
+                    let count = filterCounts.editor_counts[value] || 0;
+                    $(this).text(`${value} (${count}/${totalResults})`);
+                }
+            });
+
+            // Update local filter counts
+            $('#local-filter option').each(function() {
+                let value = $(this).val();
+                if (value) {
+                    let count = filterCounts.local_counts[value] || 0;
+                    $(this).text(`${value} (${count}/${totalResults})`);
+                }
+            });
+            // Update local_atual filter counts
+            $('#local_atual-filter option').each(function() {
+                let value = $(this).val();
+                if (value) {
+                    let count = filterCounts.local_atual_counts[value] || 0;
+                    $(this).text(`${value} (${count}/${totalResults})`);
+                }
+            });
+            // Update date filter counts
+            $('#date-filter option').each(function() {
+                let value = $(this).val();
+                if (value) {
+                    let count = filterCounts.date_counts[value] || 0;
+                    $(this).text(`${value} (${count}/${totalResults})`);
+                }
+            });
+
+
+            function updateFilterOptions(filterId, countDict, defaultOptionText) {
+                let $filter = $(filterId);
+                let selectedValue = $filter.val(); // Capture the currently selected value
+                let matchingOptions = [];
+                let nonMatchingOptions = [];
+
+                // Only highlight options if a filter other than the current one is selected
+                let isOtherFilterSelected = 
+                    ($('#classification-filter').val() && filterId !== '#classification-filter') ||
+                    ($('#language-filter').val() && filterId !== '#language-filter') ||
+                    ($('#estado-filter').val() && filterId !== '#estado-filter') ||
+                    ($('#author-filter').val() && filterId !== '#author-filter') ||
+                    ($('#editor-filter').val() && filterId !== '#editor-filter') ||
+                    ($('#date-filter').val() && filterId !== '#date-filter') ||
+                    ($('#local-filter').val() && filterId !== '#local-filter') ||
+                    ($('#local_atual-filter').val() && filterId !== '#local_atual-filter');
+
+                // Loop through the current options and categorize them into matching and non-matching groups
+                $filter.find('option').each(function() {
+                    let value = $(this).val();
+                    if (value) {
+                        let count = countDict[value] || 0;
+                        if (count > 0) {
+                            matchingOptions.push({ value, count });
+                        } else {
+                            nonMatchingOptions.push({ value, count });
+                        }
+                    }
+                });
+
+                // Sort matching and non-matching options alphabetically
+                matchingOptions.sort((a, b) => a.value.localeCompare(b.value));
+                nonMatchingOptions.sort((a, b) => a.value.localeCompare(b.value));
+
+                // Clear the existing options
+                $filter.empty();
+
+                // Add the default option (e.g., "Categoria", "Autor")
+                $filter.append(`<option value="">${defaultOptionText}</option>`);
+
+                // Append matching options to the top if another filter is selected
+                matchingOptions.forEach(item => {
+                    let option = `<option value="${item.value}" ${isOtherFilterSelected ? 'class="highlight"' : ''}>${item.value} (${item.count}/${totalResults})</option>`;
+                    $filter.append(option);
+                });
+
+                // Append non-matching options below the matching ones
+                nonMatchingOptions.forEach(item => {
+                    let option = `<option value="${item.value}">${item.value} (${item.count}/${totalResults})</option>`;
+                    $filter.append(option);
+                });
+
+                // Restore the previously selected option
+                if (selectedValue) {
+                    $filter.val(selectedValue);
+                }
+            }
+            // Update the "Categoria" filter
+            updateFilterOptions('#estado-filter', filterCounts.estado_counts, 'Estado');
+
+            // Update the "Categoria" filter
+            updateFilterOptions('#classification-filter', filterCounts.classification_counts, 'Categoria');
+
+            // Update the "Linguagem" filter
+            updateFilterOptions('#language-filter', filterCounts.language_counts, 'Língua');
+
+            // Update the "Autor" filter
+            updateFilterOptions('#author-filter', filterCounts.author_counts, 'Autor');
+
+            // Update the "Editor" filter
+            updateFilterOptions('#editor-filter', filterCounts.editor_counts, 'Impressor');
+
+            // Update the "Local" filter
+            updateFilterOptions('#local-filter', filterCounts.local_counts, 'Local');
+
+            // Update the "Local_atual" filter
+            updateFilterOptions('#local_atual-filter', filterCounts.local_atual_counts, 'Local');
+
+            // Update the "date" filter
+            updateFilterOptions('#date-filter', filterCounts.date_counts, 'Data');
+        }
+
+
+        // Load filters from sessionStorage and apply them to the filter inputs
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedFilters = JSON.parse(sessionStorage.getItem('filters')) || {};
+            const clearButton = document.getElementById('clear-button');
+            console.log("Loaded filters from sessionStorage:", savedFilters);
+
+            clearButton.addEventListener('click', () => {
+                // Clear session storage when filters are cleared
+                sessionStorage.clear();
+            });
+
+            // Apply the saved filters to the dropdowns and input fields
+            Object.keys(savedFilters).forEach(key => {
+                const element = document.getElementById(`${key}-filter`);
+                if (element) {
+                    element.value = savedFilters[key];
+                    console.log(`Restored ${key}:`, savedFilters[key]);
+                } else if (key === 'search_word') {  // Special handling for search word
+                    const searchInput = document.getElementById('search-word');
+                    if (searchInput) {
+                        searchInput.value = savedFilters[key];
+                        console.log(`Restored search_word:`, savedFilters[key]);
+                    }
+                } else {
+                    console.warn(`Element with ID '${key}-filter' not found.`);
+                }
+            });
+        });
+
+        // Save filters to sessionStorage when any filter changes
+        document.querySelectorAll('select, #search-word').forEach(element => {
+            element.addEventListener('change', () => {
+                const filters = {
+                    estado: document.getElementById('estado-filter').value,
+                    classification: document.getElementById('classification-filter').value,
+                    language: document.getElementById('language-filter').value,
+                    author: document.getElementById('author-filter').value,
+                    editor: document.getElementById('editor-filter').value,
+                    local: document.getElementById('local-filter').value,
+                    local_atual: document.getElementById('local_atual-filter').value,
+                    date: document.getElementById('date-filter').value,
+                    search_word: document.getElementById('search-word').value
+                };
+                sessionStorage.setItem('filters', JSON.stringify(filters));
+                console.log("Filters saved to sessionStorage:", filters);
+            });
+        });
+
+    </script>
+</body>
+</html>
