@@ -1,0 +1,67 @@
+#image-gallery {
+    display: grid;  /* Use grid layout */
+    grid-template-columns: repeat(3, 1fr);  /* 3 columns of equal width */
+    gap: 10px;  /* Space between grid items */
+}
+
+.image-item {
+    background: #f0f0f0;  /* Light background color for contrast */
+    padding: 10px;  /* Add padding around images */
+    border-radius: 5px;  /* Rounded corners */
+    transition: transform 0.2s;  /* Smooth transition for hover effect */
+}
+
+.image-item img {
+    width: 100%;  /* Images take full width of grid item */
+    height: auto;  /* Maintain aspect ratio */
+    object-fit: cover;  /* Crop images to fit the container */
+}
+
+.image-item:hover {
+    transform: scale(1.05);  /* Slight zoom on hover */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);  /* Add shadow on hover */
+}
+
+/* Style for the image detail page */
+.image-detail {
+    display: flex;  /* Use flexbox to arrange elements */
+    flex-direction: column;  /* Layout items in a column */
+    align-items: center;  /* Center align the content */
+    padding: 20px;  /* Add padding for spacing */
+}
+
+.image-detail img {
+    max-width: 600px;  /* Limit the width of the image */
+    height: auto;  /* Maintain aspect ratio */
+    margin-bottom: 20px;  /* Add spacing below the image */
+}
+
+.image-info {
+    font-size: 1.2em;  /* Larger font size for info */
+    color: #333;  /* Darker text color */
+}
+
+.submit-section {
+    display: flex;  /* Use flexbox for alignment */
+    flex-direction: column;  /* Layout items in a column */
+    align-items: flex-start;  /* Align content to the start */
+}
+
+.submit-section textarea {
+    width: 100%;  /* Full width text area */
+    max-width: 500px;  /* Maximum width */
+    margin-bottom: 10px;  /* Spacing below the textarea */
+}
+
+.submit-section button {
+    background-color: #4CAF50;  /* Green button */
+    color: white;  /* White text */
+    padding: 10px 20px;  /* Padding around the button */
+    border: none;  /* No border */
+    border-radius: 5px;  /* Rounded corners */
+    cursor: pointer;  /* Pointer cursor */
+}
+
+.submit-section button:hover {
+    background-color: #45a049;  /* Darker green on hover */
+}

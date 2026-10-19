@@ -24,10 +24,15 @@ The application reads `Sheet1` from `database.xlsx`. The working dataset has the
 ```text
 id, path, page, Bibliographic Description, description, classification,
 author, titulo, date, local, tomos, URL, lingua, carreira, notas, registo,
-editor, local(atual), estado, editor_name, tradutor
+Impressor, local(atual), estado, editor_name, tradutor
 ```
 
-Keep these names. `id` identifies the application record. The manuscript number parsed from an image filename is not necessarily the same identifier. `path` is relative to `website/`, normally `static/<image filename>`. `URL` can contain multiple links separated by line breaks.
+Keep these names. Column Q is now `Impressor`; legacy workbooks with `editor`
+or `Editor` remain supported. The internal API field is still `editor`, and
+editorial saves preserve the new spreadsheet header. Both applications read
+the first sheet. Public pages do not need auxiliary sheets; the editorial app
+can recreate `Chat` when adding a comment. Back up existing comments before
+removing that sheet. `id` identifies the application record. The manuscript number parsed from an image filename is not necessarily the same identifier. `path` is relative to `website/`, normally `static/<image filename>`. `URL` can contain multiple links separated by line breaks.
 
 To update the catalog, validate a replacement export, preserve IDs and image paths, then replace `database.xlsx` without changing its column names or sheet name. Request handlers read this file. Restarting the deployment after replacing data and assets provides a straightforward handoff.
 

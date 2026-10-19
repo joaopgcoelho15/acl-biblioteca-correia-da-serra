@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Review</title>
+    <style>
+        table {
+            width: 100%;  /* Full width for the table */
+            border-collapse: collapse;  /* No gaps between cells */
+        }
+
+        th, td {
+            border: 1px solid #ddd;  /* Light border for table cells */
+            padding: 8px;  /* Padding for table cells */
+            text-align: center;  /* Center-align text */
+        }
+
+        img {
+            max-width: 50px;  /* Thumbnail size */
+            height: auto;  /* Maintain aspect ratio */
+        }
+
+        .dropdown {
+            cursor: pointer;  /* Cursor for clickable */
+            color: blue;  /* Color to emphasize interactivity */
+            text-decoration: underline;  /* Underline for emphasis */
+        }
+
+        .large-image {
+            display: none;  /* Initially hidden */
+            text-align: center;  /* Center-align within the cell */
+            padding: 10px;  /* Padding around the large image */
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;  /* Arrange buttons vertically */
+            align-items: center;  /* Center-align within the cell */
+            gap: 10px;  /* Add spacing between buttons */
+        }
+    </style>
+
+    <script>
+    function toggleLargeImage(rowId) {
+        const largeImageRow = document.getElementById("large-image-" + rowId);
+        // Check the current display property and toggle accordingly
+        largeImageRow.style.display = (largeImageRow.style.display === 'none' || largeImageRow.style.display === '') ? 'table-row' : 'none';
+    }
+    </script>
+</head>
+<body>
+    <h1>Admin Review</h1>
+
+    <!-- Navigation buttons -->
+    <div>
+        <button onclick="window.location.href='/admin/transactions'">Ver Histórico de Transações</button>  <!-- Transactions button -->
+        <button onclick="window.location.href='/'">Voltar</button>  <!-- Back button -->
+    </div>
+
+    <!-- Table with added "Image" column and dropdown functionality -->
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Registo</th>  <!-- Column for the dropdown -->
+            <th>Descrição</th>
+            <th>Decisão</th>
+        </tr>
+        {% for description in descriptions %}
+        <tr>
+            <td>{{ description['id'] }}</td>
+            <td>
+                <span class="dropdown" onclick="toggleLargeImage({{ description['id'] }})">Show/Hide</span>  <!-- Clickable dropdown -->
+            </td>
+            <td>{{ description['description'] }}</td>
+            <td class="actions">  <!-- Vertically arranged buttons -->
+                <form action="/admin/approve" method="post">
+                    <input type="hidden" name="id" value="{{ description['id'] }}">  <!-- Hidden input for ID -->
+                    <button type="submit">Approve</button>  <!-- Submit button -->
+                  </form> 
+                <form action="/admin/reject" method="post">
+                    <input type="hidden" name="id" value="{{ description['id'] }}">  <!-- Hidden input for ID -->
+                    <button type="submit">Reject</button>  <!-- Reject button -->
+                </form>
+            </td>
+        </tr>
+
+        <!-- Large image row, initially hidden -->
+        <tr id="large-image-{{ description['id'] }}" class="large-image">
+            <td colspan="4">  <!-- Spanning all columns -->
+                <img src="{{ url_for('static', filename=description['image_path']) }}" alt="Large Image" style="max-width: 400px;">  <!-- Display large image -->
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

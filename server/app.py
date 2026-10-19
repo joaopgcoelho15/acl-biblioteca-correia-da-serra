@@ -479,7 +479,8 @@ def normalized_column(df, field):
 
 @lru_cache(maxsize=2)
 def cached_data(path, signature):
-    df = pd.read_excel(path, sheet_name="Sheet1")
+    df = pd.read_excel(path, sheet_name=0)
+    df = df.rename(columns={"Impressor": "editor", "impressor": "editor", "Editor": "editor"})
     df = df.astype(object).where(pd.notnull(df), "")
 
     for column in df.columns:
