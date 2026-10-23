@@ -4,6 +4,24 @@ Aplicação web para explorar o catálogo da Biblioteca de José Correia da Serr
 com o Excel como fonte de dados. Implementada em Python/Flask, pandas,
 HTML/Jinja, CSS e JavaScript, sem uma base de dados SQL.
 
+## Retomar O Trabalho Noutra Conta Ou Sistema De IA
+
+Ler [CORREIA_DA_SERRA.md](CORREIA_DA_SERRA.md) para compreender o objetivo,
+os dados e as decisões do projeto, seguido de [genai.md](genai.md) para trabalhar
+no código. [AGENTS.md](AGENTS.md) encaminha os agentes que procuram instruções
+automaticamente. Não é necessário recuperar o histórico das conversas anteriores.
+
+Um clone contém as duas aplicações, os dois Excel do catálogo, `Url de obras.xlsx`,
+os PDFs e as imagens utilizadas. A aplicação pública pode ser iniciada com esses
+ficheiros. As credenciais editoriais são configuradas de novo no destino.
+O Git conserva a versão enviada: alterações feitas entretanto no Excel do
+servidor só ficam preservadas depois de serem exportadas e versionadas.
+O procedimento de transferência encontra-se em
+[docs/CONTINUIDADE_DADOS.md](docs/CONTINUIDADE_DADOS.md).
+
+Verificações efetuadas a partir de um clone novo:
+[registo de portabilidade de 23/10/2026](docs/PORTABILIDADE_2026-10-23.md).
+
 ## Duas Aplicações
 
 - **Publicar:** a aplicação pública na raiz deste repositório.
